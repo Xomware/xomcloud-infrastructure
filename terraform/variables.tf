@@ -1,41 +1,35 @@
 variable "app_name" {
   description = "The name for the application."
-  default = "xomcloud"
+  default     = "xomcloud"
 }
 
 variable "access_key" {
   description = "AWS access key."
-  sensitive = true
+  sensitive   = true
 }
 
 variable "secret_key" {
   description = "AWS secret key."
-  sensitive = true
+  sensitive   = true
 }
 
-variable "domain_suffix"{
-    description = "Suffix for the domain of the app."
-    default = ".com"
+variable "domain_suffix" {
+  description = "Suffix for the domain of the app."
+  default     = ".com"
 }
 
 variable "aws_region" {
   default = "us-east-1"
 }
 
-variable  "api_auth_token" {
+variable "api_auth_token" {
   description = "API Auth token"
   sensitive   = true
 }
 
-variable  "api_secret_key" {
+variable "api_secret_key" {
   description = "API secret key"
   sensitive   = true
-}
-
-variable "cloudfront_origin_id" {
-  type        = string
-  description = "unique origin id for cloudfront distribution"
-  default = "xomcloudWeb"
 }
 
 variable "cloudfront_origin_path" {
@@ -48,12 +42,6 @@ variable "us_canada_only" {
   type        = bool
   default     = true
   description = "If a georestriction should be placed on the distribution to only provide access to the US and Canada"
-}
-
-variable "custom_record_name" {
-  type        = string
-  default     = ""
-  description = "custom domain name to use, if one is desired."
 }
 
 variable "custom_error_response_page_path" {
@@ -83,17 +71,17 @@ variable "enable_cloudfront_cache" {
 
 # Lambda
 variable "lambda_runtime" {
-  type = string
+  type    = string
   default = "python3.10"
 }
 
-variable "lambda_trace_mode"{
-  type = string
+variable "lambda_trace_mode" {
+  type    = string
   default = "Active"
 }
 
-variable "lambda_aiohttp_active"{
-  type = bool
+variable "lambda_aiohttp_active" {
+  type    = bool
   default = false
 }
 
@@ -111,38 +99,4 @@ variable "soundcloud_client_secret" {
   description = "SoundCloud API Client Secret"
   type        = string
   sensitive   = true
-}
-
-# ========================================
-# ECS Configuration Variables
-# ========================================
-
-variable "ecs_task_cpu" {
-  description = "CPU units for ECS task (1024 = 1 vCPU)"
-  type        = number
-  default     = 2048
-}
-
-variable "ecs_task_memory" {
-  description = "Memory for ECS task in MB"
-  type        = number
-  default     = 4096
-}
-
-variable "ecs_desired_count" {
-  description = "Desired number of ECS tasks"
-  type        = number
-  default     = 1
-}
-
-variable "ecs_min_capacity" {
-  description = "Minimum number of ECS tasks for autoscaling"
-  type        = number
-  default     = 1
-}
-
-variable "ecs_max_capacity" {
-  description = "Maximum number of ECS tasks for autoscaling"
-  type        = number
-  default     = 4
 }

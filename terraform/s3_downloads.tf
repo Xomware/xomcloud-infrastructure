@@ -2,7 +2,7 @@
 resource "aws_s3_bucket" "downloads" {
   bucket        = "${var.app_name}-downloads"
   force_destroy = true
-  tags = merge(local.standard_tags, tomap({ "name" = "${var.app_name}-downloads" }))
+  tags          = merge(local.standard_tags, tomap({ "name" = "${var.app_name}-downloads" }))
 }
 
 # Bucket ownership controls (disable ACLs)
@@ -40,7 +40,7 @@ resource "aws_s3_bucket_cors_configuration" "downloads" {
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["GET", "HEAD"]
-    allowed_origins = ["*"]  # Restrict to your domain in production
+    allowed_origins = ["*"] # Restrict to your domain in production
     expose_headers  = ["ETag", "Content-Length", "Content-Type"]
     max_age_seconds = 3600
   }
@@ -49,15 +49,15 @@ resource "aws_s3_bucket_cors_configuration" "downloads" {
 # Lifecycle rule - auto-delete downloads after 24 hours
 resource "aws_s3_bucket_lifecycle_configuration" "downloads" {
   bucket = aws_s3_bucket.downloads.id
-  
+
   rule {
     id     = "expire-downloads-24h"
     status = "Enabled"
-    
+
     expiration {
       days = 1
     }
-    
+
     # Also clean up incomplete multipart uploads
     abort_incomplete_multipart_upload {
       days_after_initiation = 1
