@@ -1,10 +1,10 @@
 terraform {
-  backend "remote" {
-    organization = "Domjgiordano"
-
-    workspaces {
-      name = "xomcloud-infrastructure"
-    }
+  backend "s3" {
+    bucket         = "xomware-terraform-state"
+    key            = "xomcloud/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "xomware-terraform-locks"
+    encrypt        = true
   }
 }
 
