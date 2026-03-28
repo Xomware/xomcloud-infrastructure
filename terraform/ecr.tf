@@ -10,6 +10,8 @@ resource "aws_ecr_repository" "authorizer" {
   }
 
   tags = merge(local.standard_tags, tomap({ "name" = "${var.app_name}-authorizer" }))
+
+  lifecycle { ignore_changes = [tags, tags_all] }
 }
 
 resource "aws_ecr_repository" "download_tracks" {
@@ -22,6 +24,8 @@ resource "aws_ecr_repository" "download_tracks" {
   }
 
   tags = merge(local.standard_tags, tomap({ "name" = "${var.app_name}-download-tracks" }))
+
+  lifecycle { ignore_changes = [tags, tags_all] }
 }
 
 # Lifecycle policy to keep only last 5 images
