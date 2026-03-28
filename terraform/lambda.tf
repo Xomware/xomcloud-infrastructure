@@ -1,3 +1,6 @@
+# TODO(#41): Pin image_uri to a digest instead of :latest for reproducible deploys.
+# The image_uri is managed by CI (ignored in lifecycle) so the :latest tag here is
+# only used on initial creation. CI should push and update with a SHA digest.
 resource "aws_lambda_function" "download_tracks" {
   function_name = "${var.app_name}-download-tracks"
   description   = "Lambda Function for downloading soundcloud tracks, zipping, uploading to s3 and returning a presigned url."
@@ -26,7 +29,8 @@ resource "aws_lambda_function" "download_tracks" {
       description,
       filename,
       source_code_hash,
-      layers
+      layers,
+      image_uri
     ]
   }
 

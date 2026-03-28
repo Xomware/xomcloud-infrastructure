@@ -27,7 +27,7 @@ module "api" {
   authorizer_role_arn   = aws_iam_role.lambda_role.arn
   tags                  = local.standard_tags
   allow_headers         = local.api_allow_headers
-  allow_origin          = "*"
+  allow_origin          = "https://xomcloud.xomware.com"
 
   # Custom domain
   domain_name     = local.api_domain_name
