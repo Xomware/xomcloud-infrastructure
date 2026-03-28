@@ -1,4 +1,5 @@
 ## Resources for API Gateway Lambda Authorization
+# TODO(#41): Pin image_uri to a digest instead of :latest for reproducible deploys.
 resource "aws_lambda_function" "authorizer" {
   function_name = "${var.app_name}-authorizer"
   description   = "Lambda Authorizer for ${var.app_name}"
@@ -28,7 +29,8 @@ resource "aws_lambda_function" "authorizer" {
       description,
       filename,
       source_code_hash,
-      layers
+      layers,
+      image_uri
     ]
   }
   depends_on = [

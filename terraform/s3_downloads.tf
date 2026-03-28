@@ -40,7 +40,7 @@ resource "aws_s3_bucket_cors_configuration" "downloads" {
   cors_rule {
     allowed_headers = ["*"]
     allowed_methods = ["GET", "HEAD"]
-    allowed_origins = ["*"] # Restrict to your domain in production
+    allowed_origins = ["https://xomcloud.xomware.com"]
     expose_headers  = ["ETag", "Content-Length", "Content-Type"]
     max_age_seconds = 3600
   }

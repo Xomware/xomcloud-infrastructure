@@ -27,6 +27,8 @@ data "aws_iam_policy_document" "api_gateway_cloudwatch_policy" {
       "logs:GetLogEvents",
       "logs:FilterLogEvents"
     ]
+    # AWS requires resource = "*" for CloudWatch Logs permissions on API Gateway
+    # account-level role. This cannot be scoped to specific log groups.
     resources = ["*"]
   }
 }
