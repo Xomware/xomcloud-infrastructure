@@ -39,3 +39,46 @@ resource "aws_lambda_function" "download_tracks" {
     aws_iam_role.lambda_role
   ]
 }
+
+# TODO(#41): Pin image_uri to a digest instead of :latest for reproducible deploys.
+# The image_uri is managed by CI (ignored in lifecycle) so the :latest tag here is
+# only used on initial creation. CI should push and update with a SHA digest.
+resource "aws_lambda_function" "auth_token" {
+  function_name = "${var.app_name}-auth-token"
+  description   = "Lambda Function that proxies the SoundCloud OAuth token + refresh endpoints (bootstraps the bearer token used by the API authorizer)."
+  package_type  = "Image"
+  architectures = ["x86_64"]
+  image_uri     = "${aws_ecr_repository.auth_token.repository_url}:latest"
+  memory_size   = 512
+  timeout       = 30
+  role          = aws_iam_role.lambda_role.arn
+
+  environment {
+    variables = local.lambda_variables
+  }
+
+  image_config {
+    command = ["lambdas.auth_token.handler.handler"]
+  }
+
+  tags = merge(local.standard_tags, tomap({ "name" = "${var.app_name}-auth-token" }))
+
+  tracing_config {
+    mode = var.lambda_trace_mode
+  }
+
+  lifecycle {
+    ignore_changes = [
+      description,
+      filename,
+      source_code_hash,
+      layers,
+      image_uri
+    ]
+  }
+
+  depends_on = [
+    aws_iam_role_policy.lambda_role_policy,
+    aws_iam_role.lambda_role
+  ]
+}

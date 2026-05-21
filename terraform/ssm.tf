@@ -25,10 +25,12 @@ resource "aws_ssm_parameter" "secret_key" {
 }
 
 # SOUNDCLOUD
+# CLIENT_ID is the public OAuth client identifier — stored as a plain String.
+# CLIENT_SECRET is the confidential half — stored as SecureString.
 resource "aws_ssm_parameter" "soundcloud_client_id" {
   name        = "/${var.app_name}/soundcloud/CLIENT_ID"
   description = "Soundcloud Web API Client ID"
-  type        = "SecureString"
+  type        = "String"
   value       = var.soundcloud_client_id
 
   lifecycle {
