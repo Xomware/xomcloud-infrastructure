@@ -118,6 +118,35 @@ resource "aws_iam_role_policy" "github_actions_frontend" {
 }
 
 data "aws_iam_policy_document" "github_actions_backend" {
+  # This backend ships container images, not zips. GetAuthorizationToken is the
+  # docker-login call and has no resource form -- it is account-wide or nothing.
+  statement {
+    sid       = "EcrLogin"
+    effect    = "Allow"
+    actions   = ["ecr:GetAuthorizationToken"]
+    resources = ["*"]
+  }
+
+  # The push itself, scoped to this app's three repositories.
+  statement {
+    sid    = "PushImages"
+    effect = "Allow"
+    actions = [
+      "ecr:BatchCheckLayerAvailability",
+      "ecr:BatchGetImage",
+      "ecr:CompleteLayerUpload",
+      "ecr:GetDownloadUrlForLayer",
+      "ecr:InitiateLayerUpload",
+      "ecr:PutImage",
+      "ecr:UploadLayerPart",
+    ]
+    resources = [
+      aws_ecr_repository.authorizer.arn,
+      aws_ecr_repository.download_tracks.arn,
+      aws_ecr_repository.auth_token.arn,
+    ]
+  }
+
 
   # By name prefix, so a new lambda needs no IAM change to be deployable.
   statement {
