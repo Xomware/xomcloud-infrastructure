@@ -102,3 +102,25 @@ variable "soundcloud_client_secret" {
   type        = string
   sensitive   = true
 }
+
+# Read these off the repo, never build them from a name:
+#   gh api /repos/<org>/<repo>/actions/oidc/customization/sub -q .sub_claim_prefix
+# GitHub uses immutable numeric identifiers on newer repos, and it reports the
+# repo's CURRENT name -- several Xomware repos have been renamed since creation.
+# Both spellings are listed so a flip in either direction keeps working.
+
+variable "github_frontend_subjects" {
+  description = "OIDC subject prefixes allowed to assume the frontend deploy role"
+  type        = list(string)
+  default = [
+    "repo:Xomware/xomcloud-frontend",
+  ]
+}
+
+variable "github_backend_subjects" {
+  description = "OIDC subject prefixes allowed to assume the backend deploy role"
+  type        = list(string)
+  default = [
+    "repo:Xomware/xomcloud-backend",
+  ]
+}
