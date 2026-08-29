@@ -14,6 +14,7 @@ concurrency:
   cancel-in-progress: false
 
 permissions:
+  id-token: write # mint the OIDC token traded for the plan/apply role
   contents: read
   pull-requests: write
 
@@ -41,11 +42,13 @@ jobs:
       # TODO(#48): Migrate to OIDC authentication. Replace static credentials
       # with role-to-assume once the OIDC provider is set up.
       # See docs/OIDC-MIGRATION.md for the full migration plan.
+      # Read-only for plans, admin only for an apply on master. Selecting the
+      # role by event means a pull request cannot assume the role that
+      # mutates, regardless of what the workflow later does.
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v6
+        uses: aws-actions/configure-aws-credentials@v5
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && secrets.AWS_TERRAFORM_APPLY_ROLE_ARN || secrets.AWS_TERRAFORM_PLAN_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Terraform Format Check
@@ -62,8 +65,6 @@ jobs:
         run: terraform plan -no-color -input=false
         continue-on-error: true
         env:
-          TF_VAR_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          TF_VAR_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           TF_VAR_api_auth_token: ${{ secrets.API_AUTH_TOKEN }}
           TF_VAR_api_secret_key: ${{ secrets.API_SECRET_KEY }}
           TF_VAR_soundcloud_client_id: ${{ secrets.SOUNDCLOUD_CLIENT_ID }}
@@ -73,8 +74,6 @@ jobs:
         if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: terraform apply -auto-approve -input=false
         env:
-          TF_VAR_access_key: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          TF_VAR_secret_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           TF_VAR_api_auth_token: ${{ secrets.API_AUTH_TOKEN }}
           TF_VAR_api_secret_key: ${{ secrets.API_SECRET_KEY }}
           TF_VAR_soundcloud_client_id: ${{ secrets.SOUNDCLOUD_CLIENT_ID }}
