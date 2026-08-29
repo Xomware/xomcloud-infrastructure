@@ -70,6 +70,12 @@ jobs:
           TF_VAR_soundcloud_client_id: ${{ secrets.SOUNDCLOUD_CLIENT_ID }}
           TF_VAR_soundcloud_client_secret: ${{ secrets.SOUNDCLOUD_CLIENT_SECRET }}
 
+
+      # Without this the job is green whatever the plan did, because the plan
+      # step carries continue-on-error.
+      - name: Plan status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
       - name: Terraform Apply
         if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
         run: terraform apply -auto-approve -input=false
