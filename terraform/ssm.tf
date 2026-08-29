@@ -1,29 +1,3 @@
-# AWS
-# TODO(#39): Remove static AWS keys after OIDC migration is complete.
-# These SSM params store static IAM credentials used by the Lambda functions.
-# Once CI and Lambda auth are migrated to OIDC/IAM roles, delete these params
-# and the corresponding variables in variables.tf.
-resource "aws_ssm_parameter" "access_key" {
-  name        = "/${var.app_name}/aws/ACCESS_KEY"
-  description = "AWS Access Key"
-  type        = "SecureString"
-  value       = var.access_key
-
-  lifecycle {
-    ignore_changes = [tags, tags_all]
-  }
-}
-resource "aws_ssm_parameter" "secret_key" {
-  name        = "/${var.app_name}/aws/SECRET_KEY"
-  description = "AWS Secret Key"
-  type        = "SecureString"
-  value       = var.secret_key
-
-  lifecycle {
-    ignore_changes = [tags, tags_all]
-  }
-}
-
 # SOUNDCLOUD
 # CLIENT_ID is the public OAuth client identifier — stored as a plain String.
 # CLIENT_SECRET is the confidential half — stored as SecureString.
