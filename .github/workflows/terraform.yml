@@ -3,84 +3,20 @@ name: Terraform
 on:
   push:
     branches: [master]
-    paths: ['terraform/**', 'lambda/**']
+    paths: ['terraform/**', '.github/workflows/terraform.yml', 'lambda/**']
   pull_request:
     branches: [master]
-    paths: ['terraform/**', 'lambda/**']
+    paths: ['terraform/**', '.github/workflows/terraform.yml', 'lambda/**']
   workflow_dispatch:
 
-concurrency:
-  group: terraform-xomcloud-infrastructure
-  cancel-in-progress: false
-
 permissions:
-  id-token: write # mint the OIDC token traded for the plan/apply role
   contents: read
   pull-requests: write
-
-env:
-  TF_DIR: terraform
-  AWS_REGION: us-east-1
+  id-token: write
 
 jobs:
   terraform:
-    name: Terraform
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ${{ env.TF_DIR }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v4
-        with:
-          terraform_version: "~1.9"
-
-      # TODO(#48): Migrate to OIDC authentication. Replace static credentials
-      # with role-to-assume once the OIDC provider is set up.
-      # See docs/OIDC-MIGRATION.md for the full migration plan.
-      # Read-only for plans, admin only for an apply on master. Selecting the
-      # role by event means a pull request cannot assume the role that
-      # mutates, regardless of what the workflow later does.
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v5
-        with:
-          role-to-assume: ${{ (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && github.ref == 'refs/heads/master' && secrets.AWS_TERRAFORM_APPLY_ROLE_ARN || secrets.AWS_TERRAFORM_PLAN_ROLE_ARN }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Terraform Format Check
-        run: terraform fmt -check -recursive
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Validate
-        run: terraform validate
-
-      - name: Terraform Plan
-        id: plan
-        run: terraform plan -no-color -input=false
-        continue-on-error: true
-        env:
-          TF_VAR_api_auth_token: ${{ secrets.API_AUTH_TOKEN }}
-          TF_VAR_api_secret_key: ${{ secrets.API_SECRET_KEY }}
-          TF_VAR_soundcloud_client_id: ${{ secrets.SOUNDCLOUD_CLIENT_ID }}
-          TF_VAR_soundcloud_client_secret: ${{ secrets.SOUNDCLOUD_CLIENT_SECRET }}
-
-
-      # Without this the job is green whatever the plan did, because the plan
-      # step carries continue-on-error.
-      - name: Plan status
-        if: steps.plan.outcome == 'failure'
-        run: exit 1
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/master' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
-        run: terraform apply -auto-approve -input=false
-        env:
-          TF_VAR_api_auth_token: ${{ secrets.API_AUTH_TOKEN }}
-          TF_VAR_api_secret_key: ${{ secrets.API_SECRET_KEY }}
-          TF_VAR_soundcloud_client_id: ${{ secrets.SOUNDCLOUD_CLIENT_ID }}
-          TF_VAR_soundcloud_client_secret: ${{ secrets.SOUNDCLOUD_CLIENT_SECRET }}
+    uses: Xomware/github-actions/.github/workflows/terraform.yml@v1
+    with:
+      app: xomcloud
+      terraform-version: "~1.9"
